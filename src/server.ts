@@ -7,6 +7,8 @@ const DEFAULT_PORT = 8080
 const argPort = parse(args).port
 const port = argPort ? Number(argPort) : DEFAULT_PORT
 
+const kv = await Deno.openKv()
+
 console.log(`HTTP webserver running. Access it at: http://localhost:${port}/`)
 
 const handler = async (request: Request): Promise<Response> => {
@@ -16,11 +18,16 @@ const handler = async (request: Request): Promise<Response> => {
 	const value = url.searchParams.get('value')
 
 	if (key) {
-		const persistedValue = (() => {
+		const kvKey = ['text', key] as const
+
+		const persistedValue: string = await (async () => {
 			if (value) {
+				await kv.set(kvKey, value)
 				return value
 			}
-			return 'Test'
+			const valueFromKv = (await kv.get(kvKey)).value
+
+			return typeof valueFromKv === 'string' ? valueFromKv : ''
 		})()
 		return new Response(persistedValue)
 	}
