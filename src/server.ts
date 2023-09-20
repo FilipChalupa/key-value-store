@@ -17,7 +17,7 @@ const handler = async (request: Request): Promise<Response> => {
 	const key = url.searchParams.get('key')
 	const value = url.searchParams.get('value')
 
-	if (key) {
+	if (key && url.pathname === '/') {
 		const kvKey = ['text', key] as const
 
 		const persistedValue: string = await (async () => {
@@ -32,7 +32,9 @@ const handler = async (request: Request): Promise<Response> => {
 		return new Response(persistedValue)
 	}
 
-	return staticFiles('public')({
+	return staticFiles('public', {
+		extensions: ['html'],
+	})({
 		request,
 		respondWith: (response: Response) => response,
 	})
