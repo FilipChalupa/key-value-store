@@ -29,7 +29,11 @@ const handler = async (request: Request): Promise<Response> => {
 
 			return typeof valueFromKv === 'string' ? valueFromKv : ''
 		})()
-		return new Response(persistedValue)
+		return new Response(persistedValue, {
+			headers: {
+				'Access-Control-Allow-Origin': '*',
+			},
+		})
 	}
 
 	return staticFiles('public', {
